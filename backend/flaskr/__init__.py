@@ -16,13 +16,13 @@ def create_app(test_config=None):
   '''
   @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
   '''
-  cors = CORS(app, resources={r"/": {"origins": "*"}})
+  CORS(app, resources={r"/": {"origins": "*"}})
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
   '''
- @app.after_request
- def after_request(response):
+  @app.after_request
+  def after_request(response):
      response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
      response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST,DELETE,OPTIONS')
      return response
@@ -63,12 +63,21 @@ def create_app(test_config=None):
   @app.route('/questions')
   def get_questions():
     Questions =Question.query.order_by(Question.id).all()
-    
-    formatted_Questions =[Question.format() for Question in questions]
+
+    current_questions = paginate_questions(request, selection)
+    categories = Category.query.order_by(Category.type).all()
+    total_questions = len(questions)
+
+
+    if len(current_questions) == 0:
+        abort(404)
 
     return jsonify({
-      'success':True,
-      'questions':formatted_Question
+      'success': True,
+      'questions': current_questions,
+      'total_questions': total_questions,
+      'categories': {category.id: category.type for category in categories},
+      'current_category': None
     })
   '''
   @TODO: 
@@ -77,6 +86,24 @@ def create_app(test_config=None):
   TEST: When you click the trash icon next to a question, the question will be removed.
   This removal will persist in the database and when you refresh the page. 
   '''
+
+
+  @app.route('/questions/<int:id>', methods=['DELETE'])
+  def delete_question(id):
+      try:
+        question = Question.query.get(id)
+
+        if question is None:
+          abort(404)
+
+        question.delete()
+
+        return jsonify({
+            'success': True,
+            'deleted': question_id
+        }), 200
+      except Exception:
+          abort(422)
 
   '''
   @TODO: 
@@ -88,7 +115,33 @@ def create_app(test_config=None):
   the form will clear and the question will appear at the end of the last page
   of the questions list in the "List" tab.  
   '''
+  @app.route("/questions", methods=['POST'])
+  def new_question():
+      body = request.get_json()
 
+     
+
+      question = body.get('question')
+      answer = body.get('answer')
+      difficulty = body.get('difficulty')
+      category = body.get('category')
+      if (('question') or ('answer') or ('difficulty') or ('category') not in  body ):
+        abort(422)
+      try:
+          question = Question(question=question, 
+          answer=answer,
+          difficulty=difficulty, 
+          category=category)
+
+          question.insert()
+
+          return jsonify({
+              'success': True,
+              'created': question.id,
+          })
+
+      except:
+          abort(422)
   '''
   @TODO: 
   Create a POST endpoint to get questions based on a search term. 
@@ -99,7 +152,24 @@ def create_app(test_config=None):
   only question that include that string within their question. 
   Try using the word "title" to start. 
   '''
+  @app.route('/questions/search', methods=['POST'])
+  def search_questions():
+      body = request.get_json()
+      search_term = body.get('searchTerm', None)
 
+      if search_term == None:
+                abort(422)
+
+      s_results = Question.query.filter(
+          Question.question.ilike(f'%{search_term}%')).all()
+
+      return jsonify({
+          'success': True,
+          'questions': [question.format() for question in s_results],
+          'total_questions': len(search_results),
+          'current_category': None
+      })
+      abort(404)
   '''
   @TODO: 
   Create a GET endpoint to get questions based on category. 
@@ -127,7 +197,22 @@ def create_app(test_config=None):
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
-  
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return jsonify({
+      "success": False, 
+      "error": 422,
+      "message": "unprocessable"
+      }), 422
+
+  @app.errorhandler(404)
+  def not_found(error):
+    return jsonify({
+        "success": False, 
+        "error": 404,
+        "message": "Not found"
+        }), 404
+    
   return app
 
     
