@@ -66,7 +66,7 @@ def create_app(test_config=None):
 
     current_questions = paginate_questions(request, selection)
     categories = Category.query.order_by(Category.type).all()
-    total_questions = len(questions)
+    total_questions = len(Questions)
 
 
     if len(current_questions) == 0:
