@@ -1,7 +1,26 @@
 .form-view > label {
   padding: 0px 0px 10px;
+  font-family: unset ;
+  /* margin: auto; */
+  font-size: 1.2em;
+  font-style: bold;
+  padding: 15px;
+  
 }
 
+
 #add-form {
+  padding: 20px;
+  margin: auto;
   text-align: center;
+  background-color: rgba(0, 128, 128, 0.603);
+  width: 50%;
+  margin-top: 20px;
+  border: 1px solid rgb(19, 18, 18);
+  border-radius: 40px;
+
+}
+.size{
+  margin: auto;
+  width: 20%;
 }
