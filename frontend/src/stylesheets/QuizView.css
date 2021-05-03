@@ -1,12 +1,8 @@
 .quiz-play-holder {
-    padding: 20px;
-    margin: auto;
+    width: 80%;
+    margin-left: 10%;
     text-align: center;
-    background-color: rgba(0, 128, 128, 0.603);
-    width: 50%;
-    margin-top: 20px;
-    border: 1px solid rgb(19, 18, 18);
-    border-radius: 40px;
+    margin-top: 40px;
 }
 
 .category-holder {
@@ -20,7 +16,7 @@
 }
 
 .play-category:hover {
-    color: rgb(41, 105, 39);
+    color: dodgerblue;
 }
 
 .button {
